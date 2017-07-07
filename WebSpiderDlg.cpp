@@ -68,6 +68,9 @@ BEGIN_MESSAGE_MAP(CWebSpiderDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BTN_START, &CWebSpiderDlg::OnBnClickedBtnStart)
+	ON_WM_SIZE()
+	ON_BN_CLICKED(IDC_BTN_CLEAR_RET_PATH, &CWebSpiderDlg::OnBnClickedBtnClearRetPath)
+	ON_BN_CLICKED(IDC_BTN_OPEN_RET_PATH, &CWebSpiderDlg::OnBnClickedBtnOpenRetPath)
 END_MESSAGE_MAP()
 
 
@@ -102,9 +105,121 @@ BOOL CWebSpiderDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	InitialLayout();
+	m_strRetPath = CGlobalFunction::GetCurPath() + _T("\\result");
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+
+CWnd * CWebSpiderDlg::GetDlgSafeItem(int nID)
+{
+	CWnd * pWnd = GetDlgItem(nID);
+	if (pWnd && ::IsWindow(pWnd->GetSafeHwnd()))
+	{
+		return pWnd;
+	}
+	return NULL;
+}
+
+void CWebSpiderDlg::InitialLayout()
+{
+	CWnd * pStcWebUrlList = GetDlgSafeItem(IDC_STATIC_1);
+	CWnd * pStcKeyWordList = GetDlgSafeItem(IDC_STATIC_2);
+	CWnd * pEditWebUrlList = GetDlgSafeItem(IDC_EDIT_WEBURL_LIST);
+	CWnd * pEditKeyWordList = GetDlgSafeItem(IDC_EDIT_KEYWORD_LIST);
+	CWnd * pBtnClearRet = GetDlgSafeItem(IDC_BTN_CLEAR_RET_PATH);
+	CWnd * pBtnOpenRet = GetDlgSafeItem(IDC_BTN_OPEN_RET_PATH);
+	CWnd * pBtnStart = GetDlgSafeItem(IDC_BTN_START);
+	if (
+		pStcWebUrlList
+		&& pStcKeyWordList 
+		&& pEditWebUrlList 
+		&& pEditKeyWordList
+		&& pBtnClearRet
+		&& pBtnOpenRet
+		&& pBtnStart
+		)
+	{
+		CRect rtClient;
+		GetClientRect(rtClient);
+		int nGap = 3;
+		int nBtnWidth = 80;
+		int nBtnHeight = 22;
+		int nWholeWidth = rtClient.Width();
+		int nWholeHeight = rtClient.Height();
+		int nHalfPos = nWholeWidth / 2;
+		pStcWebUrlList->MoveWindow(nGap, nGap, nHalfPos / 2, nBtnHeight);
+		pStcKeyWordList->MoveWindow(nHalfPos, nGap, nHalfPos / 2, nBtnHeight);
+		pEditWebUrlList->MoveWindow(nGap, nGap + nBtnHeight, nHalfPos - nGap * 3, nWholeHeight - nGap * 3 - nBtnHeight * 2);
+		pEditKeyWordList->MoveWindow(nHalfPos, nGap + nBtnHeight, nHalfPos - nGap * 3, nWholeHeight - nGap * 3 - nBtnHeight * 2);
+		pBtnClearRet->MoveWindow(nWholeWidth - nBtnWidth * 3 - nGap * 3, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
+		pBtnOpenRet->MoveWindow(nWholeWidth - nBtnWidth * 2 - nGap * 2, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
+		pBtnStart->MoveWindow(nWholeWidth - nBtnWidth * 1 - nGap * 1, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
+	}
+	Invalidate(FALSE);
+}
+
+void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, CString strPath)
+{
+	//先从服务器将结果下下来
+	CString strRet;
+	CHttpClient client(IE_AGENT);
+	if (SUCCESS != client.HttpGet(strURL, NULL, strRet))
+	{
+		//读取失败，直接返回
+		return;
+	}
+	if (!strRet.IsEmpty())
+	{
+		//将server解析出来，供后边使用
+		CString strServer;
+		CString strObject;
+		DWORD dwServiceType;
+		INTERNET_PORT nPort;
+		AfxParseURL(strURL, dwServiceType, strServer, strObject, nPort);
+		//尝试根据关键字解析http结果
+		std::set<CString> setURL = FindKeyWordURL(strRet, setKeyWord);
+		//遍历解析提取到的URL并尝试保存
+		for (std::set<CString>::iterator it = setURL.begin(); it != setURL.end(); it++)
+		{
+			CString strSubURL = *it;
+			CString strSubServer;
+			//先判定这个URL是否完整
+			AfxParseURL(strSubURL, dwServiceType, strSubServer, strObject, nPort);
+			//找不到头，则试着将server加上然后再试一次
+			if (AFX_INET_SERVICE_HTTP != dwServiceType && AFX_INET_SERVICE_HTTPS != dwServiceType)
+			{
+				strSubURL = _T("http://") + strServer + strSubURL;
+				AfxParseURL(strSubURL, dwServiceType, strSubServer, strObject, nPort);
+				//还是找不到头，则放弃本条
+				if (AFX_INET_SERVICE_HTTP != dwServiceType && AFX_INET_SERVICE_HTTPS != dwServiceType)
+				{
+					continue;
+				}
+			}
+			//找到了就继续
+			CString strRet;
+			CHttpClient client(IE_AGENT);
+			if (SUCCESS == client.HttpGet(strURL, NULL, strRet))
+			{
+				CString strGUID = CGlobalFunction::GetNewGUID();
+				CFile file;
+				if(file.Open(strPath + _T("\\") + strGUID + _T(".html"), CFile::modeCreate | CFile::modeWrite))
+				{
+					std::string strTmp = CGlobalFunction::ConverCStringToStdString(strRet);
+					file.Write(strTmp.c_str(), strTmp.size() * sizeof(char));
+					file.Close();
+				}
+			}
+		}
+	}
+}
+
+std::set<CString> CWebSpiderDlg::FindKeyWordURL(CString & strHtml, std::set<CString> & setKeyWord)
+{
+	std::set<CString> setRet;
+	setRet.insert(_T("/yc7369/article/details/38065435"));
+	return setRet;
 }
 
 void CWebSpiderDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -156,12 +271,42 @@ HCURSOR CWebSpiderDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CWebSpiderDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+	InitialLayout();
+}
+
 void CWebSpiderDlg::OnBnClickedBtnStart()
 {
-	CString strHost = _T("http://www.baidu.com/");
-	CString strRet;
-	CHttpClient client(IE_AGENT);
-	client.HttpGet(strHost, NULL, strRet);
+	CWaitCursor wait;
+	//创建结果文件夹
+	CString strErr;
+	CGlobalFunction::MakeSureDirectoryExists(m_strRetPath + _T("\\"), strErr);
+	//首先从控件拿到关键字列表及网址列表
+	std::set<CString> setStrURL;
+	setStrURL.insert(_T("http://blog.csdn.net/yc7369/article/details/38065435"));
+	std::set<CString> setStrKeyWord;
+	//遍历URL列表
+	for (std::set<CString>::iterator it = setStrURL.begin(); it != setStrURL.end(); it++)
+	{
+		CString strURL = *it;
+		//处理一个网址
+		DealOneURL(strURL, setStrKeyWord, m_strRetPath);
+	}
+}
+
+void CWebSpiderDlg::OnBnClickedBtnClearRetPath()
+{
+	CGlobalFunction::DeleteFileOrPath(m_strRetPath);
+}
+
+
+void CWebSpiderDlg::OnBnClickedBtnOpenRetPath()
+{
+	CString strErr;
+	CGlobalFunction::MakeSureDirectoryExists(m_strRetPath + _T("\\"), strErr);
+	ShellExecute(NULL, _T("open"), m_strRetPath, NULL, m_strRetPath, SW_SHOWNORMAL);
 }
 
 #if 0
