@@ -9,6 +9,7 @@
 #include <sstream>
 #include "GlobalFunction.h"
 #include "TcpSocket.h"
+#include "HttpClient.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -155,12 +156,20 @@ HCURSOR CWebSpiderDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CWebSpiderDlg::OnBnClickedBtnStart()
 {
-	CString strHost = _T("www.quora.com");
-	CString strPath = _T("/hhp/9AD4");
+	CString strHost = _T("http://www.baidu.com/");
+	CString strRet;
+	CHttpClient client(IE_AGENT);
+	client.HttpGet(strHost, NULL, strRet);
+}
+
+#if 0
+//纯手工的比较原始的写法，留着便于理解http
+void CWebSpiderDlg::OnBnClickedBtnStart()
+{
+	CString strHost = _T("blog.csdn.net");
+	CString strPath = _T("/haunt_/article/details/50378608");
 	CTcpSocket tcpSocket;
 	tcpSocket.Create();
 	tcpSocket.Connect(strHost, 80);
@@ -199,3 +208,4 @@ void CWebSpiderDlg::OnBnClickedBtnStart()
 
 	tcpSocket.Close();
 }
+#endif
