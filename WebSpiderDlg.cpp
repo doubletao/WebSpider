@@ -10,11 +10,17 @@
 #include "GlobalFunction.h"
 #include "TcpSocket.h"
 #include "HttpClient.h"
+#include "ParserDom.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+#ifdef _DEBUG
+#pragma comment(lib,"htmlcxxD.lib")
+#else
+#pragma comment(lib,"htmlcxxU.lib")
+#endif
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -107,6 +113,11 @@ BOOL CWebSpiderDlg::OnInitDialog()
 
 	InitialLayout();
 	m_strRetPath = CGlobalFunction::GetCurPath() + _T("\\result");
+	CWnd * pWnd = GetDlgSafeItem(IDC_EDIT_WEBURL_LIST);
+	if (pWnd)
+	{
+		pWnd->SetWindowText(_T("http://blog.csdn.net/yc7369/article/details/38065435"));
+	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -218,6 +229,20 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 std::set<CString> CWebSpiderDlg::FindKeyWordURL(CString & strHtml, std::set<CString> & setKeyWord)
 {
 	std::set<CString> setRet;
+
+	htmlcxx::HTML::ParserDom parser;
+	tree<htmlcxx::HTML::Node> dom = parser.parseTree(CGlobalFunction::ConverCStringToStdString(strHtml));
+	//输出所有的文本节点
+	int i = 0;
+	for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
+	{
+		i++;
+		it->parseAttributes();
+		std::map<std::string, std::string> mapAttr = it->attributes();
+		std::string strTagName = it->tagName();
+		std::string strText = it->text();
+	}
+
 	setRet.insert(_T("/yc7369/article/details/38065435"));
 	return setRet;
 }
@@ -284,15 +309,40 @@ void CWebSpiderDlg::OnBnClickedBtnStart()
 	CString strErr;
 	CGlobalFunction::MakeSureDirectoryExists(m_strRetPath + _T("\\"), strErr);
 	//首先从控件拿到关键字列表及网址列表
-	std::set<CString> setStrURL;
-	setStrURL.insert(_T("http://blog.csdn.net/yc7369/article/details/38065435"));
-	std::set<CString> setStrKeyWord;
-	//遍历URL列表
-	for (std::set<CString>::iterator it = setStrURL.begin(); it != setStrURL.end(); it++)
+	CWnd * pEditWebUrlList = GetDlgSafeItem(IDC_EDIT_WEBURL_LIST);
+	CWnd * pEditKeyWordList = GetDlgSafeItem(IDC_EDIT_KEYWORD_LIST);
+	if (pEditKeyWordList
+		&& pEditWebUrlList)
 	{
-		CString strURL = *it;
-		//处理一个网址
-		DealOneURL(strURL, setStrKeyWord, m_strRetPath);
+		std::vector<CString> vecStrURL;
+		std::vector<CString> vecStrKeyWord;
+		std::set<TCHAR> setMark;
+		setMark.insert(_T('\n'));
+		CString strAllUrl;
+		pEditWebUrlList->GetWindowText(strAllUrl);
+		strAllUrl.Replace(_T('\r'), _T(''));
+		vecStrURL = CGlobalFunction::SplitCString(strAllUrl, setMark, FALSE);
+		CString strAllKeyWord;
+		pEditKeyWordList->GetWindowText(strAllKeyWord);
+		strAllKeyWord.Replace(_T('\r'), _T(''));
+		vecStrKeyWord = CGlobalFunction::SplitCString(strAllKeyWord, setMark, FALSE);
+		std::set<CString> setStrURL;
+		for (int i = 0; i < vecStrURL.size(); i++)
+		{
+			setStrURL.insert(vecStrURL[i]);
+		}
+		std::set<CString> setStrKeyWord;
+		for (int i = 0; i < vecStrKeyWord.size(); i++)
+		{
+			setStrKeyWord.insert(vecStrKeyWord[i]);
+		}
+		//遍历URL列表
+		for (std::set<CString>::iterator it = setStrURL.begin(); it != setStrURL.end(); it++)
+		{
+			CString strURL = *it;
+			//处理一个网址
+			DealOneURL(strURL, setStrKeyWord, m_strRetPath);
+		}
 	}
 }
 
