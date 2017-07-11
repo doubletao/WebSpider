@@ -116,7 +116,7 @@ BOOL CWebSpiderDlg::OnInitDialog()
 	CWnd * pWnd = GetDlgSafeItem(IDC_EDIT_WEBURL_LIST);
 	if (pWnd)
 	{
-		pWnd->SetWindowText(_T("http://blog.csdn.net/yc7369/article/details/38065435"));
+		pWnd->SetWindowText(_T("http://www.ip138.com/ip2city.asp"));
 	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
