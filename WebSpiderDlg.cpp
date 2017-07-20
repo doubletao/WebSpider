@@ -173,14 +173,14 @@ void CWebSpiderDlg::InitialLayout()
 void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, CString strPath)
 {
 	//先从服务器将结果下下来
-	CString strRet;
+	std::string cstrRet;
 	CHttpClient client(IE_AGENT);
-	if (SUCCESS != client.HttpGet(strURL, NULL, strRet))
+	if (SUCCESS != client.HttpGet(strURL, NULL, cstrRet))
 	{
 		//读取失败，直接返回
 		return;
 	}
-	if (!strRet.IsEmpty())
+	if (cstrRet.size() > 0)
 	{
 		//将server解析出来，供后边使用
 		CString strServer;
@@ -189,7 +189,7 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 		INTERNET_PORT nPort;
 		AfxParseURL(strURL, dwServiceType, strServer, strObject, nPort);
 		//尝试根据关键字解析http结果
-		std::set<CString> setURL = FindKeyWordURL(strRet, setKeyWord);
+		std::set<CString> setURL = FindKeyWordURL(cstrRet, setKeyWord);
 		//遍历解析提取到的URL并尝试保存
 		for (std::set<CString>::iterator it = setURL.begin(); it != setURL.end(); it++)
 		{
@@ -209,16 +209,16 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 				}
 			}
 			//找到了就继续
-			CString strRet;
+			std::string cstrRet;
 			CHttpClient client(IE_AGENT);
-			if (SUCCESS == client.HttpGet(strURL, NULL, strRet))
+			if (SUCCESS == client.HttpGet(strSubURL, NULL, cstrRet))
 			{
+
 				CString strGUID = CGlobalFunction::GetNewGUID();
 				CFile file;
 				if(file.Open(strPath + _T("\\") + strGUID + _T(".html"), CFile::modeCreate | CFile::modeWrite))
 				{
-					std::string strTmp = CGlobalFunction::ConverCStringToStdString(strRet);
-					file.Write(strTmp.c_str(), strTmp.size() * sizeof(char));
+					file.Write(cstrRet.c_str(), cstrRet.size() * sizeof(char));
 					file.Close();
 				}
 			}
@@ -226,24 +226,32 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 	}
 }
 
-std::set<CString> CWebSpiderDlg::FindKeyWordURL(CString & strHtml, std::set<CString> & setKeyWord)
+std::set<CString> CWebSpiderDlg::FindKeyWordURL(std::string & cstrHtml, std::set<CString> & setKeyWord)
 {
 	std::set<CString> setRet;
 
 	htmlcxx::HTML::ParserDom parser;
-	tree<htmlcxx::HTML::Node> dom = parser.parseTree(CGlobalFunction::ConverCStringToStdString(strHtml));
+	tree<htmlcxx::HTML::Node> dom = parser.parseTree(cstrHtml);
 	//输出所有的文本节点
-	int i = 0;
 	for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
 	{
-		i++;
 		it->parseAttributes();
 		std::map<std::string, std::string> mapAttr = it->attributes();
 		std::string strTagName = it->tagName();
 		std::string strText = it->text();
+		for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
+		{
+			if (itEle->second.find("utf-8") != std::string::npos
+				|| itEle->second.find("UTF-8") != std::string::npos)
+			{
+				//如果是utf8编码，则需要转码
+				int i = 0;
+				i++;
+			}
+		}
 	}
 
-	setRet.insert(_T("/yc7369/article/details/38065435"));
+	setRet.insert(_T("http://blog.csdn.net/chinafe/article/details/17168779"));
 	return setRet;
 }
 

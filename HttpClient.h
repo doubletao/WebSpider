@@ -21,12 +21,12 @@ public:
 	CHttpClient(LPCTSTR strAgent = IE_AGENT);
 	virtual ~CHttpClient(void);
 
-	int HttpGet(LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse);
-	int HttpPost(LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse);
-	int HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse);
+	int HttpGet(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
+	int HttpPost(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
+	int HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
 
 private:
-	int ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse);
+	int ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
 	void Clear();
 
 

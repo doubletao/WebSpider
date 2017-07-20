@@ -45,7 +45,7 @@ void CHttpClient::Clear()
 	}
 }
 
-int CHttpClient::ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse)
+int CHttpClient::ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse)
 {
 	int result =FAILURE ;
 	//WCHAR* wPostData = strPostData.GetBuffer();
@@ -114,16 +114,7 @@ int CHttpClient::ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostDa
 			memset(szChars, 0, BUFFER_SIZE + 1);
 		}
 
-		/*utf8转unicode*/
-		int unicodeLen = MultiByteToWideChar(CP_UTF8, 0, strRawResponse.c_str(), -1, NULL, 0);
-		WCHAR *pUnicode = new WCHAR[unicodeLen + 1];
-		memset(pUnicode, 0, (unicodeLen + 1)*sizeof(wchar_t));
-		MultiByteToWideChar(CP_UTF8, 0, strRawResponse.c_str(), -1, pUnicode, unicodeLen);
-		strResponse = pUnicode;//最终响应结果
-		//TRACE(strResponse + L"");
-		delete[]pUnicode;
-		pUnicode = NULL;
-		
+		cstrResponse = strRawResponse;//最终响应结果
 		Clear();
 	}
 	catch (CInternetException* e)
@@ -136,7 +127,7 @@ int CHttpClient::ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostDa
 
 		printf("dwError = %d", dwError, 0);
 
-		strResponse = L"CInternetException\n";
+		cstrResponse = "CInternetException\n";
 
 		if (ERROR_INTERNET_TIMEOUT == dwErrorCode)
 		{
@@ -150,16 +141,16 @@ int CHttpClient::ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostDa
 	return result;
 }
 
-int CHttpClient::HttpGet(LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse)
+int CHttpClient::HttpGet(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse)
 {
-	return ExecuteRequest(CHttpConnection::HTTP_VERB_GET, strUrl, NULL, strResponse);
+	return ExecuteRequest(CHttpConnection::HTTP_VERB_GET, strUrl, NULL, cstrResponse);
 }
 
-int CHttpClient::HttpPost(LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse)
+int CHttpClient::HttpPost(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse)
 {
-	return ExecuteRequest(CHttpConnection::HTTP_VERB_POST, strUrl, strPostData, strResponse);
+	return ExecuteRequest(CHttpConnection::HTTP_VERB_POST, strUrl, strPostData, cstrResponse);
 }
-int CHttpClient::HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, CString &strResponse)
+int CHttpClient::HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse)
 {
-	return ExecuteRequest(CHttpConnection::HTTP_VERB_PUT, strUrl, strPostData, strResponse);
+	return ExecuteRequest(CHttpConnection::HTTP_VERB_PUT, strUrl, strPostData, cstrResponse);
 }

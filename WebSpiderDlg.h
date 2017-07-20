@@ -30,7 +30,7 @@ protected:
 	CWnd * GetDlgSafeItem(int nID);
 	void InitialLayout();
 	void DealOneURL(CString strURL, std::set<CString> & setKeyWord, CString strPath);
-	std::set<CString> FindKeyWordURL(CString & strHtml, std::set<CString> & setKeyWord);
+	std::set<CString> FindKeyWordURL(std::string & cstrHtml, std::set<CString> & setKeyWord);
 
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
