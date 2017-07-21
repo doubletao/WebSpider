@@ -56,7 +56,7 @@ public:
 	static BOOL DeleteFileOrPath(CString strFilePath);//删除文件（夹）
 	static BOOL RenameFileOrPath(CString strDesPath, CString strSrcPath);//改名文件（夹）
 	static BOOL CopyFileOrPath(CString strDesPath, CString strSrcPath);//拷贝文件（夹）
-	static BOOL ValidFileName(CString strFileName);//检查一个文件名是否合法
+	static BOOL ValidFileName(CString strFileName);//检查一个文件名是否合法(通过能否正常创建文件来进行判定)
 };
 
 class CLogProcessor

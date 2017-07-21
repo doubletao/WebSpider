@@ -845,6 +845,24 @@ BOOL CGlobalFunction::CopyFileOrPath(CString strDesPath, CString strSrcPath)//¿½
 BOOL CGlobalFunction::ValidFileName(CString strFileName)
 {
 	BOOL bRet = FALSE;
+	CString strTmpPath = GetCurPath() + _T("\\temp\\");
+	CString strErr;
+	MakeSureDirectoryExists(strTmpPath, strErr);
+	strFileName = strTmpPath + strFileName;
+	if (IsFileExists(strFileName))
+	{
+		bRet = TRUE;
+	}
+	else
+	{
+		CFile file;
+		if (file.Open(strFileName, CFile::modeCreate | CFile::modeNoTruncate))
+		{
+			file.Close();
+			DeleteFileOrPath(strFileName);
+			bRet = TRUE;
+		}
+	}
 	return bRet;
 }
 
