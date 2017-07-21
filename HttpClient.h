@@ -25,6 +25,7 @@ public:
 	int HttpPost(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
 	int HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
 
+	void SaveAllImg(std::string cstrHtml, CString strFilePath);//将html串中的所有img标签保存下来
 private:
 	int ExecuteRequest(int strMethod, LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrResponse);
 	void Clear();

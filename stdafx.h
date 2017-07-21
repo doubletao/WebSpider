@@ -40,8 +40,15 @@
 
 #include <afxsock.h>            // MFC Ì×½Ó×ÖÀ©Õ¹
 
+#include "GlobalFunction.h"
 
-
+#include "HttpClient.h"
+#include "ParserDom.h"
+#ifdef _DEBUG
+#pragma comment(lib,"htmlcxxD.lib")
+#else
+#pragma comment(lib,"htmlcxxU.lib")
+#endif
 
 
 

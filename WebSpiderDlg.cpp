@@ -7,19 +7,10 @@
 #include "WebSpiderDlg.h"
 #include "afxdialogex.h"
 #include <sstream>
-#include "GlobalFunction.h"
 #include "TcpSocket.h"
-#include "HttpClient.h"
-#include "ParserDom.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
-#endif
-
-#ifdef _DEBUG
-#pragma comment(lib,"htmlcxxD.lib")
-#else
-#pragma comment(lib,"htmlcxxU.lib")
 #endif
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -217,6 +208,18 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 			{
 
 				CString strFileName = strUrlName;
+				//对帖名做一个简要处理，把问号等符号干掉
+				strFileName.Replace(_T("/"), _T(""));
+				strFileName.Replace(_T("\\"), _T(""));
+				strFileName.Replace(_T(":"), _T(""));
+				strFileName.Replace(_T("*"), _T(""));
+				strFileName.Replace(_T("\""), _T(""));
+				strFileName.Replace(_T("?"), _T(""));
+				strFileName.Replace(_T("<"), _T(""));
+				strFileName.Replace(_T(">"), _T(""));
+				strFileName.Replace(_T("|"), _T(""));
+				strFileName.Replace(_T("="), _T(""));
+				strFileName.Replace(_T("+"), _T(""));
 				if (!CGlobalFunction::ValidFileName(strFileName))
 				{
 					strFileName = _T("帖名非法");
@@ -228,6 +231,14 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 				{
 					file.Write(cstrRet.c_str(), cstrRet.size() * sizeof(char));
 					file.Close();
+				}
+				//然后将图片存出来
+				{
+					CHttpClient client(IE_AGENT);
+					CString strPath = CGlobalFunction::GetCurPath() + _T("\\img\\");
+					CString strErr;
+					CGlobalFunction::MakeSureDirectoryExists(strPath, strErr);
+					client.SaveAllImg(cstrRet, strPath);
 				}
 				//get之后等待一个大于半秒(500ms)小于10秒(10000ms)的随机时长，用了对付爬虫识别
 				srand(clock());

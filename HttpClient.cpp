@@ -154,3 +154,54 @@ int CHttpClient::HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrR
 {
 	return ExecuteRequest(CHttpConnection::HTTP_VERB_PUT, strUrl, strPostData, cstrResponse);
 }
+
+void CHttpClient::SaveAllImg(std::string cstrHtml, CString strFilePath)
+{
+	htmlcxx::HTML::ParserDom parser;
+	tree<htmlcxx::HTML::Node> dom = parser.parseTree(cstrHtml);
+	for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
+	{
+		it->parseAttributes();
+		std::map<std::string, std::string> mapAttr = it->attributes();
+		std::string strTagName = it->tagName();
+		std::string strText = it->text();
+		if (strTagName == "img")
+		{
+			if (mapAttr.count("src") > 0)
+			{
+				std::string cstrUrl = mapAttr["src"];
+				CString strUrl = CGlobalFunction::ConvertStdStringToCString(cstrUrl, CP_ACP);
+				CInternetSession session;
+				CHttpFile *httpFile = (CHttpFile *)session.OpenURL(strUrl);
+				CStdioFile imgFile;
+				char buff[1024];// »º´æ
+				strUrl.Replace(_T("//"), _T("_"));
+				strUrl.Replace(_T("/"), _T("_"));
+				strUrl.Replace(_T("\\"), _T("_"));
+				strUrl.Replace(_T(":"), _T("_"));
+				strUrl.Replace(_T("*"), _T("_"));
+				strUrl.Replace(_T("\""), _T("_"));
+				strUrl.Replace(_T("?"), _T("_"));
+				strUrl.Replace(_T("<"), _T("_"));
+				strUrl.Replace(_T(">"), _T("_"));
+				strUrl.Replace(_T("|"), _T("_"));
+				strUrl.Replace(_T("="), _T("_"));
+				strUrl.Replace(_T("+"), _T("_"));
+				imgFile.Open(strFilePath + strUrl, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);
+				DWORD dwStatusCode;
+				httpFile->QueryInfoStatusCode(dwStatusCode);
+				if(dwStatusCode == HTTP_STATUS_OK)
+				{
+					int size=0;
+					do
+					{
+						size = httpFile->Read(buff,1024);    // ¶ÁÈ¡Í¼Æ¬
+						imgFile.Write(buff,size);
+					}while(size > 0);
+				}
+				httpFile->Close();
+				session.Close();
+			}
+		}
+	}
+}
