@@ -116,7 +116,8 @@ BOOL CWebSpiderDlg::OnInitDialog()
 	CWnd * pWnd = GetDlgSafeItem(IDC_EDIT_WEBURL_LIST);
 	if (pWnd)
 	{
-		pWnd->SetWindowText(_T("http://www.ip138.com/ip2city.asp"));
+		//pWnd->SetWindowText(_T("http://www.ip138.com/ip2city.asp"));//一个获取本机ip的网站，留存
+		pWnd->SetWindowText(_T("http://www.miui.com/forum-587-1.html"));
 	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -189,18 +190,19 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 		INTERNET_PORT nPort;
 		AfxParseURL(strURL, dwServiceType, strServer, strObject, nPort);
 		//尝试根据关键字解析http结果
-		std::set<CString> setURL = FindKeyWordURL(cstrRet, setKeyWord);
+		std::map<CString, CString> mapURL = FindKeyWordURL(cstrRet, setKeyWord);
 		//遍历解析提取到的URL并尝试保存
-		for (std::set<CString>::iterator it = setURL.begin(); it != setURL.end(); it++)
+		for (std::map<CString, CString>::iterator it = mapURL.begin(); it != mapURL.end(); it++)
 		{
-			CString strSubURL = *it;
+			CString strUrlName = it->second;
+			CString strSubURL = it->first;
 			CString strSubServer;
 			//先判定这个URL是否完整
 			AfxParseURL(strSubURL, dwServiceType, strSubServer, strObject, nPort);
 			//找不到头，则试着将server加上然后再试一次
 			if (AFX_INET_SERVICE_HTTP != dwServiceType && AFX_INET_SERVICE_HTTPS != dwServiceType)
 			{
-				strSubURL = _T("http://") + strServer + strSubURL;
+				strSubURL = _T("http://") + strServer + _T("/") + strSubURL;
 				AfxParseURL(strSubURL, dwServiceType, strSubServer, strObject, nPort);
 				//还是找不到头，则放弃本条
 				if (AFX_INET_SERVICE_HTTP != dwServiceType && AFX_INET_SERVICE_HTTPS != dwServiceType)
@@ -214,45 +216,120 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 			if (SUCCESS == client.HttpGet(strSubURL, NULL, cstrRet))
 			{
 
-				CString strGUID = CGlobalFunction::GetNewGUID();
+				CString strFileName = strUrlName;
+				if (!CGlobalFunction::ValidFileName(strFileName))
+				{
+					strFileName = _T("帖名非法");
+				}
+				strFileName = strPath + _T("\\") + strFileName + _T(".html");
+				strFileName = CGlobalFunction::GetUnDuplicateFileName(strFileName);
 				CFile file;
-				if(file.Open(strPath + _T("\\") + strGUID + _T(".html"), CFile::modeCreate | CFile::modeWrite))
+				if(file.Open(strFileName, CFile::modeCreate | CFile::modeWrite))
 				{
 					file.Write(cstrRet.c_str(), cstrRet.size() * sizeof(char));
 					file.Close();
 				}
+				//get之后等待一个大于半秒(500ms)小于10秒(10000ms)的随机时长，用了对付爬虫识别
+				srand(clock());
+				int nTm = rand() % 9500 + 500;
+				Sleep(nTm);
 			}
 		}
 	}
 }
 
-std::set<CString> CWebSpiderDlg::FindKeyWordURL(std::string & cstrHtml, std::set<CString> & setKeyWord)
+std::map<CString, CString> CWebSpiderDlg::FindKeyWordURL(std::string & cstrHtml, std::set<CString> & setKeyWord)
 {
-	std::set<CString> setRet;
-
-	htmlcxx::HTML::ParserDom parser;
-	tree<htmlcxx::HTML::Node> dom = parser.parseTree(cstrHtml);
-	//输出所有的文本节点
-	for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
+	//转换关键字到cstr
+	std::set<std::string> csetKeyWord;
+	for (std::set<CString>::iterator it = setKeyWord.begin(); it != setKeyWord.end(); it++)
 	{
-		it->parseAttributes();
-		std::map<std::string, std::string> mapAttr = it->attributes();
-		std::string strTagName = it->tagName();
-		std::string strText = it->text();
-		for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
+		CString strKey = *it;
+		csetKeyWord.insert(CGlobalFunction::ConverCStringToStdString(strKey, CP_ACP));
+	}
+
+	std::map<CString, CString> mapRet;
+
+	//解析分两轮，第一轮找有没有utf8的标记，如果有，转换后再继续
+	{
+		htmlcxx::HTML::ParserDom parser;
+		tree<htmlcxx::HTML::Node> dom = parser.parseTree(cstrHtml);
+		for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
 		{
-			if (itEle->second.find("utf-8") != std::string::npos
-				|| itEle->second.find("UTF-8") != std::string::npos)
+			it->parseAttributes();
+			std::map<std::string, std::string> mapAttr = it->attributes();
+			std::string strTagName = it->tagName();
+			std::string strText = it->text();
+			for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
 			{
-				//如果是utf8编码，则需要转码
-				int i = 0;
-				i++;
+				if (itEle->second.find("utf-8") != std::string::npos
+					|| itEle->second.find("UTF-8") != std::string::npos)
+				{
+					//如果是utf8编码，则需要转码
+					CString strGBK = CGlobalFunction::ConvertStdStringToCString(cstrHtml);
+					std::string cstrGBK = CGlobalFunction::ConverCStringToStdString(strGBK, CP_ACP);
+					cstrHtml = cstrGBK;
+					break;
+				}
 			}
 		}
 	}
 
-	setRet.insert(_T("http://blog.csdn.net/chinafe/article/details/17168779"));
-	return setRet;
+	//第二轮才真正开始查找关键字
+	{
+		htmlcxx::HTML::ParserDom parser;
+		tree<htmlcxx::HTML::Node> dom = parser.parseTree(cstrHtml);
+		//输出所有的文本节点
+		for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
+		{
+			BOOL bSaved = FALSE;
+			if (it.node)
+			{
+				if (it.node->first_child)
+				{
+					tree_node_<htmlcxx::HTML::Node> * pNode = it.node->first_child;
+					while (pNode)
+					{
+						std::string cstrChild = pNode->data.text();
+						if (cstrChild.size() > 0)
+						{
+							//如果子节点中发现有关键字，则查找本节点是否有链接，如果有，就加入下一步的保存列表
+							for (std::set<std::string>::iterator itKey = csetKeyWord.begin(); itKey != csetKeyWord.end(); itKey++)
+							{
+								std::string cstrKey = *itKey;
+								if (cstrChild.find(cstrKey) != std::string::npos)
+								{
+									htmlcxx::HTML::Node & itNode = *it;
+									itNode.parseAttributes();
+									std::map<std::string, std::string> mapAttr = itNode.attributes();
+									for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
+									{
+										if (itEle->first.find("href") != std::string::npos)
+										{
+											mapRet.insert(std::make_pair(CGlobalFunction::ConvertStdStringToCString(itEle->second), CGlobalFunction::ConvertStdStringToCString(cstrChild, CP_ACP)));
+											bSaved = TRUE;
+											break;
+										}
+									}
+									if (bSaved)
+									{
+										break;
+									}
+								}
+							}
+							if (bSaved)
+							{
+								break;
+							}
+						}
+						pNode = pNode->next_sibling;
+					}
+				}
+			}
+		}
+	}
+
+	return mapRet;
 }
 
 void CWebSpiderDlg::OnSysCommand(UINT nID, LPARAM lParam)

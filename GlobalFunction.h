@@ -23,6 +23,7 @@ public:
 	static string ConverCStringToStdString(CString & cstrValue);//CString与string之间的转换
 	static string ConverCStringToStdString(CString & cstrValue, DWORD dwFormatW);//CString与string之间的转换
 	static CString ConvertStdStringToCString(const string & strValue);//CString与string之间的转换
+	static CString ConvertStdStringToCString(const string & strValue, DWORD dwFormatW);//CString与string之间的转换
 	static CString GetFilePath(CString strFullFileName);//获取文件路径
 	static CString GetFileName(CString strFullFileName);//获取不带扩展名的文件名
 	static CString GetFileNameWithExt(CString strFullFileName);//获取带扩展名的文件名
@@ -55,6 +56,7 @@ public:
 	static BOOL DeleteFileOrPath(CString strFilePath);//删除文件（夹）
 	static BOOL RenameFileOrPath(CString strDesPath, CString strSrcPath);//改名文件（夹）
 	static BOOL CopyFileOrPath(CString strDesPath, CString strSrcPath);//拷贝文件（夹）
+	static BOOL ValidFileName(CString strFileName);//检查一个文件名是否合法
 };
 
 class CLogProcessor

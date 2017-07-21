@@ -133,6 +133,19 @@ CString CGlobalFunction::ConvertStdStringToCString( const string & strValue )
 	return cstrRet;
 }
 
+CString CGlobalFunction::ConvertStdStringToCString(const string & strValue, DWORD dwFormatW)
+{
+	CString cstrRet;
+	cstrRet.Empty();
+	int nLength = ::MultiByteToWideChar(dwFormatW, 0, strValue.c_str(), -1, NULL,0);
+	TCHAR * szText1 = new TCHAR[nLength+1];
+	::MultiByteToWideChar(dwFormatW, 0, strValue.c_str(), -1, szText1, nLength+1);
+	cstrRet = szText1;
+	delete[] szText1;
+	szText1 = NULL;
+	return cstrRet;
+}
+
 CString CGlobalFunction::GetFileName( CString strFullFileName )
 {
 	CString strFileName,strFileTemp;
@@ -828,6 +841,13 @@ BOOL CGlobalFunction::CopyFileOrPath(CString strDesPath, CString strSrcPath)//¿½
 		return ::CopyFile(strSrcPath, strDesPath, FALSE);
 	}
 }
+
+BOOL CGlobalFunction::ValidFileName(CString strFileName)
+{
+	BOOL bRet = FALSE;
+	return bRet;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 BOOL TimerRecorder::g_bShutDown = FALSE;
 BOOL TimerRecorder::g_bFileMode = FALSE;
