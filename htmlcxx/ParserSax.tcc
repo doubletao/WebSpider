@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <cctype>
 #include <cstring>
 #if !defined(WIN32) || defined(__MINGW32__)
@@ -79,7 +80,7 @@ void htmlcxx::HTML::ParserSax::parse(_Iterator &begin, _Iterator &end, std::forw
 					if (!*l && strcmp(mpLiteral, "plaintext"))
 					{
 						// matched all and is not tag plaintext
-						while (isspace(*c)) ++c;
+						while (IsSpace(*c)) ++c;
 
 						if (*c == '>')
 						{
@@ -330,7 +331,7 @@ htmlcxx::HTML::ParserSax::skipHtmlComment(_Iterator c, _Iterator end)
 		if (*c++ == '-' && c != end && *c == '-')
 		{
 			_Iterator d(c);
-			while (++c != end && isspace(*c));
+			while (++c != end && IsSpace(*c));
 			if (c == end || *c++ == '>') break;
 			c = d;
 		}
@@ -375,7 +376,7 @@ _Iterator htmlcxx::HTML::ParserSax::skipHtmlTag(_Iterator c, _Iterator end)
 		else
 		{ // found an attribute
 			++c;
-			while (c != end && isspace(*c)) ++c;
+			while (c != end && IsSpace(*c)) ++c;
 
 			if (c == end) break;
 

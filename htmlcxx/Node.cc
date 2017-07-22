@@ -22,24 +22,24 @@ void Node::parseAttributes()
 	++ptr;
 
 	// Skip initial blankspace
-	while (isspace(*ptr)) ++ptr;
+	while (IsSpace(*ptr)) ++ptr;
 
 	// Skip tagname
 	if (!isalpha(*ptr)) return;
-	while (!isspace(*ptr) && *ptr != '>') ++ptr;
+	while (!IsSpace(*ptr) && *ptr != '>') ++ptr;
 
 	// Skip blankspace after tagname
-	while (isspace(*ptr)) ++ptr;
+	while (IsSpace(*ptr)) ++ptr;
 
 	while (*ptr && *ptr != '>') 
 	{
 		string key, val;
 
 		// skip unrecognized
-		while (*ptr && !isalnum(*ptr) && !isspace(*ptr)) ++ptr;
+		while (*ptr && !isalnum(*ptr) && !IsSpace(*ptr)) ++ptr;
 
 		// skip blankspace
-		while (isspace(*ptr)) ++ptr;
+		while (IsSpace(*ptr)) ++ptr;
 
 		end = ptr;
 		while (isalnum(*end) || *end == '-') ++end;
@@ -48,12 +48,12 @@ void Node::parseAttributes()
 		ptr = end;
 
 		// skip blankspace
-		while (isspace(*ptr)) ++ptr;
+		while (IsSpace(*ptr)) ++ptr;
 
 		if (*ptr == '=') 
 		{
 			++ptr;
-			while (isspace(*ptr)) ++ptr;
+			while (IsSpace(*ptr)) ++ptr;
 			if (*ptr == '"' || *ptr == '\'') 
 			{
 				char quote = *ptr;
@@ -70,16 +70,16 @@ void Node::parseAttributes()
 					if (end == 0) return;
 				}
 				const char *begin = ptr + 1;
-				while (isspace(*begin) && begin < end) ++begin;
+				while (IsSpace(*begin) && begin < end) ++begin;
 				const char *trimmed_end = end - 1;
-				while (isspace(*trimmed_end) && trimmed_end >= begin) --trimmed_end;
+				while (IsSpace(*trimmed_end) && trimmed_end >= begin) --trimmed_end;
 				val.assign(begin, trimmed_end + 1);
 				ptr = end + 1;
 			}
 			else 
 			{
 				end = ptr;
-				while (*end && !isspace(*end) && *end != '>') end++;
+				while (*end && !IsSpace(*end) && *end != '>') end++;
 				val.assign(ptr, end);
 				ptr = end;
 			}
