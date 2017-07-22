@@ -247,9 +247,9 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 						CGlobalFunction::MakeSureDirectoryExists(strPath, strErr);
 						client.SaveAllImg(cstrRet, strPath);
 					}
-					//get之后等待一个大于半秒(500ms)小于10秒(10000ms)的随机时长，用了对付爬虫识别
+					//get之后等待一个大于半秒(500ms)小于2秒(10000ms)的随机时长，用了对付爬虫识别
 					srand(clock());
-					int nTm = rand() % 9500 + 500;
+					int nTm = rand() % 1500 + 500;
 					Sleep(nTm);
 				}
 			}
