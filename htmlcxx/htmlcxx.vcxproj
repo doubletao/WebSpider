@@ -11,19 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0F01F786-0984-4611-85FD-E9A402B88844}</ProjectGuid>
-    <RootNamespace>WebSpider</RootNamespace>
-    <Keyword>MFCProj</Keyword>
+    <ProjectGuid>{AF37A852-2740-4094-A70B-F48FA9EAF3D0}</ProjectGuid>
+    <RootNamespace>htmlcxx</RootNamespace>
+    <Keyword>MFCDLLProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -41,12 +41,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>bin</OutDir>
+    <OutDir>..\lib</OutDir>
     <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>bin</OutDir>
+    <OutDir>..\lib</OutDir>
     <TargetName>$(ProjectName)U</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -54,17 +54,16 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>htmlcxx</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>lib</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>.\htmlcxx.def</ModuleDefinitionFile>
+      <ImportLibrary>../lib/$(TargetName).lib</ImportLibrary>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
-      <ValidateAllParameters>true</ValidateAllParameters>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </Midl>
     <ResourceCompile>
@@ -80,19 +79,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>htmlcxx</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>lib</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>.\htmlcxx.def</ModuleDefinitionFile>
+      <ImportLibrary>..\lib</ImportLibrary>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
-      <ValidateAllParameters>true</ValidateAllParameters>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </Midl>
     <ResourceCompile>
@@ -102,40 +100,45 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="htmlcxx.def" />
+    <None Include="ParserSax.tcc" />
     <None Include="ReadMe.txt" />
-    <None Include="res\WebSpider.ico" />
-    <None Include="res\WebSpider.rc2" />
+    <None Include="res\htmlcxx.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GlobalFunction.h" />
-    <ClInclude Include="HttpClient.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="TcpSocket.h" />
-    <ClInclude Include="WebSpider.h" />
-    <ClInclude Include="WebSpiderDlg.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="GlobalFunction.cpp" />
-    <ClCompile Include="HttpClient.cpp" />
+    <ClCompile Include="D:\WebSpider\htmlcxx\Extensions.cc" />
+    <ClCompile Include="D:\WebSpider\htmlcxx\Node.cc" />
+    <ClCompile Include="D:\WebSpider\htmlcxx\ParserDom.cc" />
+    <ClCompile Include="D:\WebSpider\htmlcxx\ParserSax.cc" />
+    <ClCompile Include="D:\WebSpider\htmlcxx\Uri.cc" />
+    <ClCompile Include="D:\WebSpider\htmlcxx\utils.cc" />
+    <ClCompile Include="htmlcxx.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TcpSocket.cpp" />
-    <ClCompile Include="WebSpider.cpp" />
-    <ClCompile Include="WebSpiderDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="WebSpider.rc" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\ci_string.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\debug.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\Extensions.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\Node.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\ParserDom.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\ParserSax.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\tld.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\tree.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\Uri.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\utils.h" />
+    <ClInclude Include="D:\WebSpider\htmlcxx\wincstring.h" />
+    <ClInclude Include="htmlcxx.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="htmlcxx.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties RESOURCE_FILE="WebSpider.rc" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>
