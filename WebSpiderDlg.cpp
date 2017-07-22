@@ -312,33 +312,52 @@ std::map<CString, CString> CWebSpiderDlg::FindKeyWordURL(std::string & cstrHtml,
 						std::string cstrChild = pNode->data.text();
 						if (cstrChild.size() > 0)
 						{
-							//如果子节点中发现有关键字，则查找本节点是否有链接，如果有，就加入下一步的保存列表
-							for (std::set<std::string>::iterator itKey = csetKeyWord.begin(); itKey != csetKeyWord.end(); itKey++)
+							if (csetKeyWord.size() > 0)
 							{
-								std::string cstrKey = *itKey;
-								if (cstrChild.find(cstrKey) != std::string::npos)
+								//如果关键字列表不为空，子节点中发现有关键字，则查找本节点是否有链接，如果有，就加入下一步的保存列表
+								for (std::set<std::string>::iterator itKey = csetKeyWord.begin(); itKey != csetKeyWord.end(); itKey++)
 								{
-									htmlcxx::HTML::Node & itNode = *it;
-									itNode.parseAttributes();
-									std::map<std::string, std::string> mapAttr = itNode.attributes();
-									for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
+									std::string cstrKey = *itKey;
+									if (cstrChild.find(cstrKey) != std::string::npos)
 									{
-										if (itEle->first.find("href") != std::string::npos)
+										htmlcxx::HTML::Node & itNode = *it;
+										itNode.parseAttributes();
+										std::map<std::string, std::string> mapAttr = itNode.attributes();
+										for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
 										{
-											mapRet.insert(std::make_pair(CGlobalFunction::ConvertStdStringToCString(itEle->second), CGlobalFunction::ConvertStdStringToCString(cstrChild, CP_ACP)));
-											bSaved = TRUE;
+											if (itEle->first.find("href") != std::string::npos)
+											{
+												mapRet.insert(std::make_pair(CGlobalFunction::ConvertStdStringToCString(itEle->second), CGlobalFunction::ConvertStdStringToCString(cstrChild, CP_ACP)));
+												bSaved = TRUE;
+												break;
+											}
+										}
+										if (bSaved)
+										{
 											break;
 										}
 									}
-									if (bSaved)
+								}
+								if (bSaved)
+								{
+									break;
+								}
+							}
+							else
+							{
+								//如果没有给关键字，则无差别保存
+								htmlcxx::HTML::Node & itNode = *it;
+								itNode.parseAttributes();
+								std::map<std::string, std::string> mapAttr = itNode.attributes();
+								for (std::map<std::string, std::string>::iterator itEle = mapAttr.begin(); itEle != mapAttr.end(); itEle++)
+								{
+									if (itEle->first.find("href") != std::string::npos)
 									{
+										mapRet.insert(std::make_pair(CGlobalFunction::ConvertStdStringToCString(itEle->second), CGlobalFunction::ConvertStdStringToCString(cstrChild, CP_ACP)));
+										bSaved = TRUE;
 										break;
 									}
 								}
-							}
-							if (bSaved)
-							{
-								break;
 							}
 						}
 						pNode = pNode->next_sibling;

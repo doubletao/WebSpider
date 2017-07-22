@@ -169,38 +169,53 @@ void CHttpClient::SaveAllImg(std::string cstrHtml, CString strFilePath)
 		{
 			if (mapAttr.count("src") > 0)
 			{
-				std::string cstrUrl = mapAttr["src"];
-				CString strUrl = CGlobalFunction::ConvertStdStringToCString(cstrUrl, CP_ACP);
-				CInternetSession session;
-				CHttpFile *httpFile = (CHttpFile *)session.OpenURL(strUrl);
-				CStdioFile imgFile;
-				char buff[1024];// »º´æ
-				strUrl.Replace(_T("//"), _T("_"));
-				strUrl.Replace(_T("/"), _T("_"));
-				strUrl.Replace(_T("\\"), _T("_"));
-				strUrl.Replace(_T(":"), _T("_"));
-				strUrl.Replace(_T("*"), _T("_"));
-				strUrl.Replace(_T("\""), _T("_"));
-				strUrl.Replace(_T("?"), _T("_"));
-				strUrl.Replace(_T("<"), _T("_"));
-				strUrl.Replace(_T(">"), _T("_"));
-				strUrl.Replace(_T("|"), _T("_"));
-				strUrl.Replace(_T("="), _T("_"));
-				strUrl.Replace(_T("+"), _T("_"));
-				imgFile.Open(strFilePath + strUrl, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);
-				DWORD dwStatusCode;
-				httpFile->QueryInfoStatusCode(dwStatusCode);
-				if(dwStatusCode == HTTP_STATUS_OK)
+				try
 				{
-					int size=0;
-					do
+					std::string cstrUrl = mapAttr["src"];
+					CString strUrl = CGlobalFunction::ConvertStdStringToCString(cstrUrl, CP_ACP);
+					CInternetSession session;
+					CHttpFile *httpFile = (CHttpFile *)session.OpenURL(strUrl);
+					CStdioFile imgFile;
+					char buff[1024];// »º´æ
+					strUrl.Replace(_T("//"), _T("_"));
+					strUrl.Replace(_T("/"), _T("_"));
+					strUrl.Replace(_T("\\"), _T("_"));
+					strUrl.Replace(_T(":"), _T("_"));
+					strUrl.Replace(_T("*"), _T("_"));
+					strUrl.Replace(_T("\""), _T("_"));
+					strUrl.Replace(_T("?"), _T("_"));
+					strUrl.Replace(_T("<"), _T("_"));
+					strUrl.Replace(_T(">"), _T("_"));
+					strUrl.Replace(_T("|"), _T("_"));
+					strUrl.Replace(_T("="), _T("_"));
+					strUrl.Replace(_T("+"), _T("_"));
+					imgFile.Open(strFilePath + strUrl, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);
+					DWORD dwStatusCode;
+					httpFile->QueryInfoStatusCode(dwStatusCode);
+					if(dwStatusCode == HTTP_STATUS_OK)
 					{
-						size = httpFile->Read(buff,1024);    // ¶ÁÈ¡Í¼Æ¬
-						imgFile.Write(buff,size);
-					}while(size > 0);
+						int size=0;
+						do
+						{
+							size = httpFile->Read(buff,1024);    // ¶ÁÈ¡Í¼Æ¬
+							imgFile.Write(buff,size);
+						}while(size > 0);
+					}
+					httpFile->Close();
+					session.Close();
 				}
-				httpFile->Close();
-				session.Close();
+				catch (CMemoryException* e)
+				{
+				}
+				catch (CFileException* e)
+				{
+				}
+				catch (CException* e)
+				{
+				}
+				catch (...)
+				{
+				}
 			}
 		}
 	}
