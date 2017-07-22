@@ -24,6 +24,7 @@ public:
 protected:
 	HICON m_hIcon;
 	CString m_strRetPath;
+	std::set<CString> m_setStrLoadedUrl;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();

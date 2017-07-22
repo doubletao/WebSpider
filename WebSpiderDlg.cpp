@@ -133,6 +133,7 @@ void CWebSpiderDlg::InitialLayout()
 	CWnd * pBtnClearRet = GetDlgSafeItem(IDC_BTN_CLEAR_RET_PATH);
 	CWnd * pBtnOpenRet = GetDlgSafeItem(IDC_BTN_OPEN_RET_PATH);
 	CWnd * pBtnStart = GetDlgSafeItem(IDC_BTN_START);
+	CWnd * pCheckLoop = GetDlgSafeItem(IDC_CHECK_LOOP);
 	if (
 		pStcWebUrlList
 		&& pStcKeyWordList 
@@ -141,6 +142,7 @@ void CWebSpiderDlg::InitialLayout()
 		&& pBtnClearRet
 		&& pBtnOpenRet
 		&& pBtnStart
+		&& pCheckLoop
 		)
 	{
 		CRect rtClient;
@@ -155,6 +157,7 @@ void CWebSpiderDlg::InitialLayout()
 		pStcKeyWordList->MoveWindow(nHalfPos, nGap, nHalfPos / 2, nBtnHeight);
 		pEditWebUrlList->MoveWindow(nGap, nGap + nBtnHeight, nHalfPos - nGap * 3, nWholeHeight - nGap * 3 - nBtnHeight * 2);
 		pEditKeyWordList->MoveWindow(nHalfPos, nGap + nBtnHeight, nHalfPos - nGap * 3, nWholeHeight - nGap * 3 - nBtnHeight * 2);
+		pCheckLoop->MoveWindow(nGap, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
 		pBtnClearRet->MoveWindow(nWholeWidth - nBtnWidth * 3 - nGap * 3, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
 		pBtnOpenRet->MoveWindow(nWholeWidth - nBtnWidth * 2 - nGap * 2, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
 		pBtnStart->MoveWindow(nWholeWidth - nBtnWidth * 1 - nGap * 1, nWholeHeight - nGap - nBtnHeight, nBtnWidth, nBtnHeight);
@@ -202,48 +205,53 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 				}
 			}
 			//找到了就继续
-			std::string cstrRet;
-			CHttpClient client(IE_AGENT);
-			if (SUCCESS == client.HttpGet(strSubURL, NULL, cstrRet))
+			//判定是否已经加载过这个网址
+			if (m_setStrLoadedUrl.count(strSubURL) < 1)
 			{
+				m_setStrLoadedUrl.insert(strSubURL);
+				std::string cstrRet;
+				CHttpClient client(IE_AGENT);
+				if (SUCCESS == client.HttpGet(strSubURL, NULL, cstrRet))
+				{
 
-				CString strFileName = strUrlName;
-				//对帖名做一个简要处理，把问号等符号干掉
-				strFileName.Replace(_T("/"), _T(""));
-				strFileName.Replace(_T("\\"), _T(""));
-				strFileName.Replace(_T(":"), _T(""));
-				strFileName.Replace(_T("*"), _T(""));
-				strFileName.Replace(_T("\""), _T(""));
-				strFileName.Replace(_T("?"), _T(""));
-				strFileName.Replace(_T("<"), _T(""));
-				strFileName.Replace(_T(">"), _T(""));
-				strFileName.Replace(_T("|"), _T(""));
-				strFileName.Replace(_T("="), _T(""));
-				strFileName.Replace(_T("+"), _T(""));
-				if (!CGlobalFunction::ValidFileName(strFileName))
-				{
-					strFileName = _T("帖名非法");
+					CString strFileName = strUrlName;
+					//对帖名做一个简要处理，把问号等符号干掉
+					strFileName.Replace(_T("/"), _T(""));
+					strFileName.Replace(_T("\\"), _T(""));
+					strFileName.Replace(_T(":"), _T(""));
+					strFileName.Replace(_T("*"), _T(""));
+					strFileName.Replace(_T("\""), _T(""));
+					strFileName.Replace(_T("?"), _T(""));
+					strFileName.Replace(_T("<"), _T(""));
+					strFileName.Replace(_T(">"), _T(""));
+					strFileName.Replace(_T("|"), _T(""));
+					strFileName.Replace(_T("="), _T(""));
+					strFileName.Replace(_T("+"), _T(""));
+					if (!CGlobalFunction::ValidFileName(strFileName))
+					{
+						strFileName = _T("帖名非法");
+					}
+					strFileName = strPath + _T("\\") + strFileName + _T(".html");
+					strFileName = CGlobalFunction::GetUnDuplicateFileName(strFileName);
+					CFile file;
+					if(file.Open(strFileName, CFile::modeCreate | CFile::modeWrite))
+					{
+						file.Write(cstrRet.c_str(), cstrRet.size() * sizeof(char));
+						file.Close();
+					}
+					//然后将图片存出来
+					{
+						CHttpClient client(IE_AGENT);
+						CString strPath = CGlobalFunction::GetCurPath() + _T("\\img\\");
+						CString strErr;
+						CGlobalFunction::MakeSureDirectoryExists(strPath, strErr);
+						client.SaveAllImg(cstrRet, strPath);
+					}
+					//get之后等待一个大于半秒(500ms)小于10秒(10000ms)的随机时长，用了对付爬虫识别
+					srand(clock());
+					int nTm = rand() % 9500 + 500;
+					Sleep(nTm);
 				}
-				strFileName = strPath + _T("\\") + strFileName + _T(".html");
-				strFileName = CGlobalFunction::GetUnDuplicateFileName(strFileName);
-				CFile file;
-				if(file.Open(strFileName, CFile::modeCreate | CFile::modeWrite))
-				{
-					file.Write(cstrRet.c_str(), cstrRet.size() * sizeof(char));
-					file.Close();
-				}
-				//然后将图片存出来
-				{
-					CHttpClient client(IE_AGENT);
-					CString strPath = CGlobalFunction::GetCurPath() + _T("\\img\\");
-					CString strErr;
-					CGlobalFunction::MakeSureDirectoryExists(strPath, strErr);
-					client.SaveAllImg(cstrRet, strPath);
-				}
-				//get之后等待一个大于半秒(500ms)小于10秒(10000ms)的随机时长，用了对付爬虫识别
-				srand(clock());
-				int nTm = rand() % 9500 + 500;
-				Sleep(nTm);
 			}
 		}
 	}
@@ -432,13 +440,24 @@ void CWebSpiderDlg::OnBnClickedBtnStart()
 		{
 			setStrKeyWord.insert(vecStrKeyWord[i]);
 		}
-		//遍历URL列表
-		for (std::set<CString>::iterator it = setStrURL.begin(); it != setStrURL.end(); it++)
+
+		BOOL bLoop = FALSE;
+		CButton * pCheckLoop = (CButton *)GetDlgSafeItem(IDC_CHECK_LOOP);
+		if (pCheckLoop)
 		{
-			CString strURL = *it;
-			//处理一个网址
-			DealOneURL(strURL, setStrKeyWord, m_strRetPath);
+			bLoop = pCheckLoop->GetCheck();
 		}
+
+		do
+		{
+			//遍历URL列表
+			for (std::set<CString>::iterator it = setStrURL.begin(); it != setStrURL.end(); it++)
+			{
+				CString strURL = *it;
+				//处理一个网址
+				DealOneURL(strURL, setStrKeyWord, m_strRetPath);
+			}
+		}while(bLoop);
 	}
 }
 
