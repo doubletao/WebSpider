@@ -106,12 +106,12 @@
     <None Include="res\htmlcxx.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D:\WebSpider\htmlcxx\Extensions.cc" />
-    <ClCompile Include="D:\WebSpider\htmlcxx\Node.cc" />
-    <ClCompile Include="D:\WebSpider\htmlcxx\ParserDom.cc" />
-    <ClCompile Include="D:\WebSpider\htmlcxx\ParserSax.cc" />
-    <ClCompile Include="D:\WebSpider\htmlcxx\Uri.cc" />
-    <ClCompile Include="D:\WebSpider\htmlcxx\utils.cc" />
+    <ClCompile Include="Extensions.cc" />
+    <ClCompile Include="Node.cc" />
+    <ClCompile Include="ParserDom.cc" />
+    <ClCompile Include="ParserSax.cc" />
+    <ClCompile Include="Uri.cc" />
+    <ClCompile Include="utils.cc" />
     <ClCompile Include="htmlcxx.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -119,17 +119,17 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D:\WebSpider\htmlcxx\ci_string.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\debug.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\Extensions.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\Node.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\ParserDom.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\ParserSax.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\tld.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\tree.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\Uri.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\utils.h" />
-    <ClInclude Include="D:\WebSpider\htmlcxx\wincstring.h" />
+    <ClInclude Include="ci_string.h" />
+    <ClInclude Include="debug.h" />
+    <ClInclude Include="Extensions.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="ParserDom.h" />
+    <ClInclude Include="ParserSax.h" />
+    <ClInclude Include="tld.h" />
+    <ClInclude Include="tree.h" />
+    <ClInclude Include="Uri.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="wincstring.h" />
     <ClInclude Include="htmlcxx.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
