@@ -280,7 +280,7 @@ void htmlcxx::HTML::ParserSax::parseHtmlTag(_Iterator b, _Iterator c)
 	if (is_end_tag) ++name_begin;
 
 	_Iterator name_end(name_begin);
-	while (name_end != c && isalnum(*name_end)) 
+	while (name_end != c && IsAlnum(*name_end)) 
 	{
 		++name_end;
 	}

@@ -36,13 +36,13 @@ void Node::parseAttributes()
 		string key, val;
 
 		// skip unrecognized
-		while (*ptr && !isalnum(*ptr) && !IsSpace(*ptr)) ++ptr;
+		while (*ptr && !IsAlnum(*ptr) && !IsSpace(*ptr)) ++ptr;
 
 		// skip blankspace
 		while (IsSpace(*ptr)) ++ptr;
 
 		end = ptr;
-		while (isalnum(*end) || *end == '-') ++end;
+		while (IsAlnum(*end) || *end == '-') ++end;
 		key.assign(end - ptr, '\0');
 		transform(ptr, end, key.begin(), ::tolower);
 		ptr = end;
