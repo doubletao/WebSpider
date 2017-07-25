@@ -33,22 +33,22 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D:\WebSpider\htmlcxx\Extensions.cc">
+    <ClCompile Include="Extensions.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D:\WebSpider\htmlcxx\Node.cc">
+    <ClCompile Include="Node.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D:\WebSpider\htmlcxx\ParserDom.cc">
+    <ClCompile Include="ParserDom.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D:\WebSpider\htmlcxx\ParserSax.cc">
+    <ClCompile Include="ParserSax.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D:\WebSpider\htmlcxx\Uri.cc">
+    <ClCompile Include="Uri.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D:\WebSpider\htmlcxx\utils.cc">
+    <ClCompile Include="utils.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,37 +65,37 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\ci_string.h">
+    <ClInclude Include="ci_string.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\debug.h">
+    <ClInclude Include="debug.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\Extensions.h">
+    <ClInclude Include="Extensions.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\Node.h">
+    <ClInclude Include="Node.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\ParserDom.h">
+    <ClInclude Include="ParserDom.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\ParserSax.h">
+    <ClInclude Include="ParserSax.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\tld.h">
+    <ClInclude Include="tld.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\tree.h">
+    <ClInclude Include="tree.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\Uri.h">
+    <ClInclude Include="Uri.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\utils.h">
+    <ClInclude Include="utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="D:\WebSpider\htmlcxx\wincstring.h">
+    <ClInclude Include="wincstring.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
