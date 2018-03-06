@@ -227,6 +227,10 @@ void CWebSpiderDlg::DealOneURL(CString strURL, std::set<CString> & setKeyWord, C
 					strFileName.Replace(_T("|"), _T(""));
 					strFileName.Replace(_T("="), _T(""));
 					strFileName.Replace(_T("+"), _T(""));
+					strFileName.Replace(_T(" "), _T("_"));
+					strFileName.Replace(_T("\n"), _T("_"));
+					strFileName.Replace(_T("\t"), _T("_"));
+					strFileName.Replace(_T("\r"), _T("_"));
 					if (!CGlobalFunction::ValidFileName(strFileName))
 					{
 						strFileName = _T("ÌûÃû·Ç·¨");
