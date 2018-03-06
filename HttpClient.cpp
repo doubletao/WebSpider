@@ -157,8 +157,11 @@ int CHttpClient::HttpPut(LPCTSTR strUrl, LPCTSTR strPostData, std::string &cstrR
 
 void CHttpClient::SaveAllImg(std::string cstrHtml, CString strFilePath)
 {
+	static int nHtmlIndex = 0;
+	nHtmlIndex++;
 	htmlcxx::HTML::ParserDom parser;
 	tree<htmlcxx::HTML::Node> dom = parser.parseTree(cstrHtml);
+	int nFileIndex = 0;
 	for(tree<htmlcxx::HTML::Node>::iterator it = dom.begin(); it != dom.end(); it++)
 	{
 		it->parseAttributes();
@@ -177,29 +180,23 @@ void CHttpClient::SaveAllImg(std::string cstrHtml, CString strFilePath)
 					CHttpFile *httpFile = (CHttpFile *)session.OpenURL(strUrl);
 					CStdioFile imgFile;
 					char buff[1024];// »º´æ
-					strUrl.Replace(_T("//"), _T("_"));
-					strUrl.Replace(_T("/"), _T("_"));
-					strUrl.Replace(_T("\\"), _T("_"));
-					strUrl.Replace(_T(":"), _T("_"));
-					strUrl.Replace(_T("*"), _T("_"));
-					strUrl.Replace(_T("\""), _T("_"));
-					strUrl.Replace(_T("?"), _T("_"));
-					strUrl.Replace(_T("<"), _T("_"));
-					strUrl.Replace(_T(">"), _T("_"));
-					strUrl.Replace(_T("|"), _T("_"));
-					strUrl.Replace(_T("="), _T("_"));
-					strUrl.Replace(_T("+"), _T("_"));
-					imgFile.Open(strFilePath + strUrl, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);
-					DWORD dwStatusCode;
-					httpFile->QueryInfoStatusCode(dwStatusCode);
-					if(dwStatusCode == HTTP_STATUS_OK)
+					CString strExt = CGlobalFunction::GetFileNameExt(strUrl);
+					CString strFileName;
+					strFileName.Format(_T("%d_%d%s"), nHtmlIndex, nFileIndex++, strExt);
+					if (imgFile.Open(strFilePath + strFileName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
 					{
-						int size=0;
-						do
+						DWORD dwStatusCode;
+						httpFile->QueryInfoStatusCode(dwStatusCode);
+						if(dwStatusCode == HTTP_STATUS_OK)
 						{
-							size = httpFile->Read(buff,1024);    // ¶ÁÈ¡Í¼Æ¬
-							imgFile.Write(buff,size);
-						}while(size > 0);
+							int size=0;
+							do
+							{
+								size = httpFile->Read(buff,1024);    // ¶ÁÈ¡Í¼Æ¬
+								imgFile.Write(buff,size);
+							}while(size > 0);
+						}
+						imgFile.Close();
 					}
 					httpFile->Close();
 					session.Close();
